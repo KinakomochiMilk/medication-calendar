@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お薬カレンダー印刷システム</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 480px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        input[type="date"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            background: #edf2f7;
+            padding: 12px;
+            border-radius: 6px;
+            justify-content: space-around;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .checkbox-label input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2b6cb0;
+        }
+        .footer {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📋 お薬カレンダー PDF生成</h1>
+    
+    <div class="form-group">
+        <label for="startDate">開始日</label>
+        <input type="date" id="startDate">
+    </div>
+    
+    <div class="form-group">
+        <label for="endDate">終了日</label>
+        <input type="date" id="endDate">
+    </div>
+
+    <div class="form-group">
+        <label for="customText">服薬タイミング（例：ご飯を食べたあと）</label>
+        <input type="text" id="customText" placeholder="空白の場合は枠自体が表示されません">
+    </div>
+
+    <div class="form-group">
+        <label>印刷する時間帯（複数選択可）</label>
+        <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" id="checkAsa" checked>朝</label>
+            <label class="checkbox-label"><input type="checkbox" id="checkHiru" checked>昼</label>
+            <label class="checkbox-label"><input type="checkbox" id="checkYoru" checked>夜</label>
+        </div>
+    </div>
+    
+    <button onclick="generatePDF()">PDFをダウンロードする</button>
+    
+    <div class="footer">
+        ※GitHub Pages上で動作させた時のみ、日本語が綺麗に印刷されます。
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').value = today;
+        document.getElementById('endDate').value = today;
+        document.getElementById('customText').value = "ご飯を食べたあと";
+    };
+
+    // Google Fontsから「さわらびゴシック」をインターネット経由で取得してbase64に変換する関数
+    async function getFontBase64() {
+        // さわらびゴシックのTTF生URL
+        const fontUrl = 'https://fonts.gstatic.com/s/sawarabigothic/v15/STg-Y0clY4laO76gQC87_FEO0m_Xj7g.ttf';
+        const response = await fetch(fontUrl);
+        const blob = await response.blob();
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                // data:font/ttf;base64,XXXXX の「XXXXX」の部分だけを切り出す
+                const base64data = reader.result.split(',')[1];
+                resolve(base64data);
+            };
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    async function generatePDF() {
+        const startVal = document.getElementById('startDate').value;
+        const endVal = document.getElementById('endDate').value;
+        const customText = document.getElementById('customText').value.trim();
+        
+        const times = [];
+        if (document.getElementById('checkAsa').checked) times.push("朝");
+        if (document.getElementById('checkHiru').checked) times.push("昼");
+        if (document.getElementById('checkYoru').checked) times.push("夜");
+
+        if (!startVal || !endVal) {
+            alert("開始日と終了日を選択してください。");
+            return;
+        }
+        if (times.length === 0) {
+            alert("時間帯を1つ以上選択してください。");
+            return;
+        }
+
+        const startDate = new Date(startVal);
+        const endDate = new Date(endVal);
+
+        if (startDate > endDate) {
+            alert("終了日は開始日以降の日付にしてください。");
+            return;
+        }
+
+        const btn = document.querySelector('button');
+        btn.innerText = "フォント読み込み＆作成中...";
+        btn.disabled = true;
+
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+            
+            // 【重要】ネット上のフォントを取得して埋め込む（GitHub Pages上ならCORS制限を突破可能）
+            const fontBase64 = await getFontBase64();
+            doc.addFileToVFS('SawarabiGothic.ttf', fontBase64);
+            doc.addFont('SawarabiGothic.ttf', 'SawarabiGothic', 'normal');
+            doc.setFont('SawarabiGothic');
+
+            const weekdaysJa = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
+            
+            let dateArray = [];
+            let currentDate = new Date(startDate);
+            while (currentDate <= endDate) {
+                dateArray.push(new Date(currentDate));
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            const pageW = 297;
+            const pageH = 210;
+            const leftX = pageW / 4;
+            const rightX = (pageW / 4) * 3;
+            const centerY = pageH / 2;
+
+            function drawCard(x, month, day, weekdayStr) {
+                // 1. 月・日 (黒文字)
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(44);
+                doc.text(`${month}月`, x - 5, centerY - 32, { align: 'right' });
+                doc.text(`${day}日`, x + 2, centerY - 32, { align: 'left' });
+
+                // 2. 曜日 (黒文字)
+                doc.setFontSize(38);
+                doc.text(weekdayStr, x, centerY - 12, { align: 'center' });
+
+                // 3. 任意のテキスト（入力された場合のみ描画）
+                if (customText) {
+                    doc.setFillColor(255, 228, 225); // 薄いピンク
+                    doc.rect(x - 65, centerY + 2, 130, 18, 'F');
+                    
+                    doc.setTextColor(255, 0, 0); // 赤
+                    doc.setFontSize(32);
+                    doc.text(customText, x, centerY + 14, { align: 'center' });
+                }
+
+                // 4. 朝・昼・夜の動的配置
+                doc.setTextColor(255, 0, 0);
+                doc.setFontSize(44);
+                
+                const textY = centerY + 42;
+                if (times.length === 1) {
+                    doc.text(times[0], x, textY, { align: 'center' });
+                } else if (times.length === 2) {
+                    doc.text(times[0], x - 40, textY, { align: 'center' });
+                    doc.text(times[1], x + 40, textY, { align: 'center' });
+                } else if (times.length === 3) {
+                    doc.text(times[0], x - 50, textY, { align: 'center' });
+                    doc.text(times[1], x, textY, { align: 'center' });
+                    doc.text(times[2], x + 50, textY, { align: 'center' });
+                }
+            }
+
+            for (let i = 0; i < dateArray.length; i += 2) {
+                if (i > 0) doc.addPage();
+
+                // 左半分
+                const d1 = dateArray[i];
+                drawCard(leftX, d1.getMonth() + 1, d1.getDate(), weekdaysJa[d1.getDay()]);
+
+                // 右半分
+                if (i + 1 < dateArray.length) {
+                    const d2 = dateArray[i + 1];
+                    drawCard(rightX, d2.getMonth() + 1, d2.getDate(), weekdaysJa[d2.getDay()]);
+
+                    // 中央の点線
+                    doc.setDrawColor(180, 180, 180);
+                    doc.setLineWidth(0.3);
+                    doc.setLineDashPattern([2, 2], 0);
+                    doc.line(pageW / 2, 0, pageW / 2, pageH);
+                }
+            }
+
+            const startStr = `${startDate.getMonth()+1}${startDate.getDate()}`;
+            const endStr = `${endDate.getMonth()+1}${endDate.getDate()}`;
+            doc.save(`calendar_${startStr}_to_${endStr}.pdf`);
+
+        } catch (error) {
+            console.error(error);
+            alert("ローカル環境（PC上での直接クリック）ではブラウザのセキュリティ制限（CORSエラー）によりフォントが読み込めずエラーになります。GitHub Pages上にアップロードしてURL（https://〜）からアクセスしてお試しください。");
+        } finally {
+            btn.innerText = "PDFをダウンロードする";
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
