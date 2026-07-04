@@ -23,20 +23,34 @@ def draw_card(c, x, centerY, month, day, weekday_str, custom_text, times):
     
     c.drawRightString(x - 20, centerY + 120, f"{month}月")
     c.drawString(x + 10, centerY + 120, f"{day}日")
-
+    
     c.setFont('JA-Gothic', 42)
     c.drawCentredString(x, centerY + 50, weekday_str)
     
     if custom_text:
         rect_width = 400
         rect_height = 65
+        rect_y = centerY - 50
+        
         c.setFillColorRGB(1, 0.89, 0.88)
-        c.rect(x - (rect_width / 2), centerY - 50, rect_width, rect_height, fill=1, stroke=0)
+        c.rect(x - (rect_width / 2), rect_y, rect_width, rect_height, fill=1, stroke=0)
+        
+        base_font_size = 48
+        max_text_width = rect_width - 20
+        
+        current_text_width = c.stringWidth(custom_text, 'JA-Gothic', base_font_size)
+        
+        if current_text_width > max_text_width:
+            font_size = base_font_size * (max_text_width / current_text_width)
+        else:
+            font_size = base_font_size
+
+        text_y = rect_y + (rect_height - font_size) / 2 + (font_size * 0.15)
         
         c.setFillColorRGB(1, 0, 0)
-        c.setFont('JA-Gothic', 48)
-        c.drawCentredString(x, centerY - 35, custom_text)
-        
+        c.setFont('JA-Gothic', font_size)
+        c.drawCentredString(x, text_y, custom_text)
+
     c.setFillColorRGB(1, 0, 0)
     c.setFont('JA-Gothic', 48)
     textY = centerY - 120
@@ -44,6 +58,7 @@ def draw_card(c, x, centerY, month, day, weekday_str, custom_text, times):
     available_width = 240 
     
     if len(times) == 1:
+
         c.drawCentredString(x, textY, times[0])
     else:
         step = available_width / (len(times) - 1)
