@@ -89,7 +89,7 @@ def generate_pdf():
             
             c.setStrokeColorRGB(0.7, 0.7, 0.7)
             c.setLineWidth(1)
-            c.setStrokeDashArray([4, 4])
+            c.setDash(4, 4)
             c.line(pageW / 2, 0, pageW / 2, pageH)
             
     c.save()
