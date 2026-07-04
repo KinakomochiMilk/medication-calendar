@@ -10,7 +10,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://kinakomochimilk.github.io"])
 
 font_path = os.path.join(os.path.dirname(__file__), 'NotoSansJP-VariableFont_wght.ttf')
 pdfmetrics.registerFont(TTFont('JA-Gothic', font_path))
