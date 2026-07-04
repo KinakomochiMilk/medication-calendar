@@ -27,5 +27,11 @@ PDFの生成および日本語描画のために、Googleの **[Noto Sans JP](ht
 - ライセンス: **SIL Open Font License 1.1**
 - 詳細なライセンス条項は `backend/OFL.txt` をご確認ください。
 
+### 3. インフラ・ホスティング (Hosting Providers)
+本システムの実行環境として、以下のクラウドサービスを利用しています。
+- **[Render](https://render.com/)**: バックエンドAPI（Python/Flask）のホスティング
+- **[GitHub Pages](https://pages.github.com/)**: フロントエンド画面のホスティング
+*※各サービスの利用規約およびポリシーに従って適切に運用されています。*
+
 ---
 Copyright (c) 2026 KinakomochiMilk
