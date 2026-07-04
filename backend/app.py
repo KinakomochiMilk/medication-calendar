@@ -12,13 +12,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 app = Flask(__name__)
 CORS(app)
 
-try:
-    pdfmetrics.registerFont(TTFont('JA-Gothic', '/usr/share/fonts/truetype/fonts-japanese-gothic.ttf'))
-except:
-    try:
-        pdfmetrics.registerFont(TTFont('JA-Gothic', 'Arial Unicode.ttf'))
-    except:
-        pass
+font_path = os.path.join(os.path.dirname(__file__), 'NotoSansJP-VariableFont_wght.ttf')
+pdfmetrics.registerFont(TTFont('JA-Gothic', font_path))
 
 WEEKDAYS_JA = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"]
 
