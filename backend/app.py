@@ -18,36 +18,40 @@ pdfmetrics.registerFont(TTFont('JA-Gothic', font_path))
 WEEKDAYS_JA = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"]
 
 def draw_card(c, x, centerY, month, day, weekday_str, custom_text, times):
-    c.setFont('JA-Gothic', 40)
+    c.setFont('JA-Gothic', 48)
     c.setFillColorRGB(0, 0, 0)
     
-    c.drawRightString(x - 5, centerY + 30, f"{month}月")
-    c.drawString(x + 2, centerY + 30, f"{day}日")
-    
-    c.setFont('JA-Gothic', 34)
-    c.drawCentredString(x, centerY - 15, weekday_str)
+    c.drawRightString(x - 20, centerY + 120, f"{month}月")
+    c.drawString(x + 10, centerY + 120, f"{day}日")
+
+    c.setFont('JA-Gothic', 42)
+    c.drawCentredString(x, centerY + 50, weekday_str)
     
     if custom_text:
-        c.setFillColorRGB(1, 0.9, 0.9)
-        c.rect(x - 65, centerY - 55, 130, 22, fill=1, stroke=0)
+        rect_width = 400
+        rect_height = 65
+        c.setFillColorRGB(1, 0.89, 0.88)
+        c.rect(x - (rect_width / 2), centerY - 50, rect_width, rect_height, fill=1, stroke=0)
         
         c.setFillColorRGB(1, 0, 0)
-        c.setFont('JA-Gothic', 24)
-        c.drawCentredString(x, centerY - 49, custom_text)
+        c.setFont('JA-Gothic', 48)
+        c.drawCentredString(x, centerY - 35, custom_text)
         
     c.setFillColorRGB(1, 0, 0)
-    c.setFont('JA-Gothic', 38)
-    textY = centerY - 100
+    c.setFont('JA-Gothic', 48)
+    textY = centerY - 120
+    
+    available_width = 240 
     
     if len(times) == 1:
         c.drawCentredString(x, textY, times[0])
-    elif len(times) == 2:
-        c.drawCentredString(x - 40, textY, times[0])
-        c.drawCentredString(x + 40, textY, times[1])
-    elif len(times) == 3:
-        c.drawCentredString(x - 50, textY, times[0])
-        c.drawCentredString(x, textY, times[1])
-        c.drawCentredString(x + 50, textY, times[2])
+    else:
+        step = available_width / (len(times) - 1)
+        start_x = x - (available_width / 2)
+        
+        for idx, time_text in enumerate(times):
+            current_x = start_x + (idx * step)
+            c.drawCentredString(current_x, textY, time_text)
 
 @app.route('/generate-pdf', methods=['POST'])
 def generate_pdf():
