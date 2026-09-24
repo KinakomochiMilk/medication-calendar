@@ -2,7 +2,8 @@
 
 服薬管理をサポートするために開発された、A4サイズで綺麗に印刷できる「お薬カレンダー」のPDF自動生成システムです。
 Web画面から日付や服薬タイミング（例：「ご飯を食べたあと」）、時間帯（朝・昼・夜）を指定するだけで、文字化けやレイアウト崩れのないハッキリとしたカレンダーを簡単に作成・ダウンロードできます。
-ご使用になる際は[ここをクリック](https://kinakomochimilk.github.io/medication-calendar/)することで使用できます。
+ご使用になる際は[ここをクリック](https://kinakomochimilk.tail390097.ts.net/medication-calendar/)することで使用できます。
+※github.ioのほうのお薬カレンダー印刷システムのサイトは閉鎖しました。現在はkinakomochimilk.tail390097.ts.netのほうで運用中です。
 
 ## 🚀 特徴
 - **文字サイズの自動最適化**: 服薬タイミングの文章が長くなっても、枠内にぴったり収まるようにフォントサイズが自動で縮小されます。
@@ -32,6 +33,7 @@ PDFの生成および日本語描画のために、Googleの **[Noto Sans JP](ht
 - **[Render](https://render.com/)**: バックエンドAPI（Python/Flask）のホスティング
 - **[GitHub Pages](https://pages.github.com/)**: フロントエンド画面のホスティング
 *※各サービスの利用規約およびポリシーに従って適切に運用されています。*
+**※現在は使用していません。**
 
 ---
 Copyright (c) 2026 KinakomochiMilk
