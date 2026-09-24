@@ -34,7 +34,8 @@ PDFの生成および日本語描画のために、Googleの **[Noto Sans JP](ht
 - **[Render](https://render.com/)**: バックエンドAPI（Python/Flask）のホスティング
 - **[GitHub Pages](https://pages.github.com/)**: フロントエンド画面のホスティング
 *※各サービスの利用規約およびポリシーに従って適切に運用されています。*
-**※現在は使用していません。**
+
+**※現在はページ表示として使用していません。**
 
 ---
 Copyright (c) 2026 KinakomochiMilk
